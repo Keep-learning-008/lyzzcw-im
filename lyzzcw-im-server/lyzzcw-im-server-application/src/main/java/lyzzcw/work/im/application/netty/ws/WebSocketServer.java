@@ -12,6 +12,7 @@ import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
 import lyzzcw.work.im.application.netty.IMNettyServer;
+import lyzzcw.work.im.application.netty.handler.IMChannelHandler;
 import lyzzcw.work.im.application.netty.ws.codec.WebSocketMessageProtocolDecoder;
 import lyzzcw.work.im.application.netty.ws.codec.WebSocketMessageProtocolEncoder;
 import org.springframework.beans.factory.annotation.Value;
@@ -66,7 +67,7 @@ public class WebSocketServer implements IMNettyServer {
                         pipeline.addLast(new WebSocketServerProtocolHandler("/im"));
                         pipeline.addLast("encode",  new WebSocketMessageProtocolEncoder());
                         pipeline.addLast("decode", new WebSocketMessageProtocolDecoder());
-                        pipeline.addLast("handler", null);
+                        pipeline.addLast("handler", new IMChannelHandler());
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, 5)

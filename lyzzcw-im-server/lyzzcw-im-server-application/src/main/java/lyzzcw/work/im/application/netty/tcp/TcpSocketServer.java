@@ -8,6 +8,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
 import lyzzcw.work.im.application.netty.IMNettyServer;
+import lyzzcw.work.im.application.netty.handler.IMChannelHandler;
 import lyzzcw.work.im.application.netty.tcp.codec.TcpSocketMessageProtocolDecoder;
 import lyzzcw.work.im.application.netty.tcp.codec.TcpSocketMessageProtocolEncoder;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,7 +55,7 @@ public class TcpSocketServer implements IMNettyServer {
                         pipeline.addLast(new IdleStateHandler(120, 0, 0, TimeUnit.SECONDS));
                         pipeline.addLast("encode", new TcpSocketMessageProtocolEncoder());
                         pipeline.addLast("decode", new TcpSocketMessageProtocolDecoder());
-                        pipeline.addLast("handler",  null);
+                        pipeline.addLast("handler",  new IMChannelHandler());
                     }
                 }).option(ChannelOption.SO_BACKLOG, 5)
                 .childOption(ChannelOption.SO_KEEPALIVE, true);
