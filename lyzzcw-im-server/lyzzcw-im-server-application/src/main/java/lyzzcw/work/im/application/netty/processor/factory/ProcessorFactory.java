@@ -2,6 +2,7 @@ package lyzzcw.work.im.application.netty.processor.factory;
 
 
 import lyzzcw.work.im.application.netty.processor.MessageProcessor;
+import lyzzcw.work.im.application.netty.processor.impl.GroupMessageProcessor;
 import lyzzcw.work.im.application.netty.processor.impl.HeartbeatProcessor;
 import lyzzcw.work.im.application.netty.processor.impl.LoginProcessor;
 import lyzzcw.work.im.application.netty.processor.impl.PrivateMessageProcessor;
@@ -29,7 +30,7 @@ public class ProcessorFactory {
                 return SpringContextHolder.getApplicationContext().getBean(PrivateMessageProcessor.class);
             //群聊消息
             case GROUP_MESSAGE:
-                return null;
+                return SpringContextHolder.getApplicationContext().getBean(GroupMessageProcessor.class);
             default:
                 return null;
 
