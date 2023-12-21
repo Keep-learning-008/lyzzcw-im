@@ -2,7 +2,9 @@ package lyzzcw.work.im.application.netty.processor.factory;
 
 
 import lyzzcw.work.im.application.netty.processor.MessageProcessor;
+import lyzzcw.work.im.application.netty.processor.impl.HeartbeatProcessor;
 import lyzzcw.work.im.application.netty.processor.impl.LoginProcessor;
+import lyzzcw.work.im.application.netty.processor.impl.PrivateMessageProcessor;
 import lyzzcw.work.im.common.domain.enums.IMCmdType;
 import lyzzcw.work.im.domain.utils.SpringContextHolder;
 
@@ -21,10 +23,10 @@ public class ProcessorFactory {
                 return SpringContextHolder.getApplicationContext().getBean(LoginProcessor.class);
             //心跳
             case HEART_BEAT:
-                return null;
+                return SpringContextHolder.getApplicationContext().getBean(HeartbeatProcessor.class);
             //单聊消息
             case PRIVATE_MESSAGE:
-                return null;
+                return SpringContextHolder.getApplicationContext().getBean(PrivateMessageProcessor.class);
             //群聊消息
             case GROUP_MESSAGE:
                 return null;
