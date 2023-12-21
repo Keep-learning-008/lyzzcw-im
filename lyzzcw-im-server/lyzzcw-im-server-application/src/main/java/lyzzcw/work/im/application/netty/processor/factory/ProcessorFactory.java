@@ -2,6 +2,7 @@ package lyzzcw.work.im.application.netty.processor.factory;
 
 
 import lyzzcw.work.im.application.netty.processor.MessageProcessor;
+import lyzzcw.work.im.application.netty.processor.impl.LoginProcessor;
 import lyzzcw.work.im.common.domain.enums.IMCmdType;
 import lyzzcw.work.im.domain.utils.SpringContextHolder;
 
@@ -17,7 +18,7 @@ public class ProcessorFactory {
         switch (cmd){
             //登录
             case LOGIN:
-                return null;
+                return SpringContextHolder.getApplicationContext().getBean(LoginProcessor.class);
             //心跳
             case HEART_BEAT:
                 return null;
