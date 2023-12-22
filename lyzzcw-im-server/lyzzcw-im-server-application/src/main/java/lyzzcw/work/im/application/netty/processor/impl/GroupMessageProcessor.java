@@ -63,9 +63,9 @@ public class GroupMessageProcessor implements MessageProcessor<IMReceiveInfo> {
     /**
      * 发送结果数据
      */
-    private void sendResult(IMReceiveInfo imReceivenfo, IMUserInfo imUserInfo, IMSendCode imSendCode){
-        if (imReceivenfo.getSendResult()){
-            IMSendResult<?> imSendResult = new IMSendResult<>(imReceivenfo.getSender(), imUserInfo, imSendCode.code(), imReceivenfo.getData());
+    private void sendResult(IMReceiveInfo imReceiveInfo, IMUserInfo imUserInfo, IMSendCode imSendCode){
+        if (imReceiveInfo.getSendResult()){
+            IMSendResult<?> imSendResult = new IMSendResult<>(imReceiveInfo.getSender(), imUserInfo, imSendCode.code(), imReceiveInfo.getData());
             imSendResult.setDestination(IMConstants.IM_RESULT_GROUP_QUEUE);
             messageSenderService.send(imSendResult);
         }

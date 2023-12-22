@@ -12,6 +12,7 @@
         <module>lyzzcw-im-resource</module>
         <module>lyzzcw-im-server</module>
         <module>lyzzcw-im-common</module>
+        <module>lyzzcw-im-sdk</module>
     </modules>
 
     <properties>
