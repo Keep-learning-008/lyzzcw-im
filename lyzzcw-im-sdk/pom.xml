@@ -1,26 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>lyzzcw-im</artifactId>
-        <groupId>lyzzcw.work.im</groupId>
-        <version>1.0-SNAPSHOT</version>
-    </parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+    <artifactId>lyzzcw-im</artifactId>
+    <groupId>lyzzcw.work.im</groupId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+
+    <groupId>lyzzcw.work.im</groupId>
+    <artifactId>lyzzcw-im-sdk</artifactId>
+    <version>1.0-SNAPSHOT</version>
 
     <packaging>pom</packaging>
-
-    <artifactId>lyzzcw-im-sdk</artifactId>
-
-    <modules>
-        <module>lyzzcw-im-sdk-starter</module>
-        <module>lyzzcw-im-sdk-interfaces</module>
-        <module>lyzzcw-im-sdk-application</module>
-        <module>lyzzcw-im-sdk-infrastructure</module>
-        <module>lyzzcw-im-sdk-domain</module>
-        <module>lyzzcw-im-sdk-client</module>
-    </modules>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -122,4 +113,11 @@
             <url>http://127.0.0.1:8081/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
+<modules>  <module>lyzzcw-im-sdk-starter</module>
+    <module>lyzzcw-im-sdk-interfaces</module>
+    <module>lyzzcw-im-sdk-application</module>
+    <module>lyzzcw-im-sdk-infrastructure</module>
+    <module>lyzzcw-im-sdk-domain</module>
+    <module>lyzzcw-im-sdk-client</module>
+  </modules>
 </project>
