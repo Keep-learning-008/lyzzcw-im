@@ -25,6 +25,7 @@ import lyzzcw.work.im.common.domain.constants.IMConstants;
 import lyzzcw.work.im.common.domain.enums.IMCmdType;
 import lyzzcw.work.im.common.domain.enums.IMListenerType;
 import lyzzcw.work.im.common.domain.enums.IMSendCode;
+import lyzzcw.work.im.common.domain.enums.IMTerminalType;
 import lyzzcw.work.im.common.domain.model.*;
 import lyzzcw.work.im.sdk.infrastructure.multicaster.MessageListenerMulticaster;
 import lyzzcw.work.im.sdk.interfaces.sender.IMSender;
@@ -98,6 +99,44 @@ public class DefaultIMSender implements IMSender {
         this.sendGroupMessageToOtherUsers(serverMap, offlineUserList, message);
         //推送给自己的其他终端
         this.sendGroupMessageToSelf(message,message.getReceiveTerminals());
+    }
+
+    @Override
+    public Map<Long, List<IMTerminalType>> getOnlineTerminal(List<Long> userIds) {
+        if (CollectionUtil.isEmpty(userIds)){
+            return Collections.emptyMap();
+        }
+        Map<String, IMUserInfo> userMap = new HashMap<>();
+        for (Long userId : userIds){
+            for (Integer terminal : IMTerminalType.codes()){
+                String key = String.join(IMConstants.REDIS_KEY_SPLIT, IMConstants.IM_USER_SERVER_ID, userId.toString(), terminal.toString());
+                userMap.put(key, new IMUserInfo(userId, terminal));
+            }
+        }
+        //从Redis批量获取数据
+        List<String> serverIdList = distributedCacheService.multiGet(userMap.keySet());
+        int idx = 0;
+        Map<Long, List<IMTerminalType>> onlineMap = new HashMap<>();
+        for (Map.Entry<String, IMUserInfo> entry : userMap.entrySet()){
+            if (!StrUtil.isEmpty(serverIdList.get(idx++))){
+                IMUserInfo imUserInfo = entry.getValue();
+                List<IMTerminalType> imTerminalTypeList = onlineMap.computeIfAbsent(imUserInfo.getUserId(), o -> new LinkedList<>());
+                imTerminalTypeList.add(IMTerminalType.fromCode(imUserInfo.getTerminal()));
+            }
+        }
+        return onlineMap;
+    }
+
+    @Override
+    public Boolean isOnline(Long userId) {
+        String redisKey = String.join(IMConstants.REDIS_KEY_SPLIT, IMConstants.IM_USER_SERVER_ID, userId.toString(), "*");
+        Set<String> keys = distributedCacheService.keys(redisKey);
+        return !CollectionUtil.isEmpty(keys);
+    }
+
+    @Override
+    public List<Long> getOnlineUser(List<Long> userIds) {
+        return new LinkedList<>(this.getOnlineTerminal(userIds).keySet());
     }
 
     /**
@@ -201,4 +240,5 @@ public class DefaultIMSender implements IMSender {
             });
         }
     }
+
 }
