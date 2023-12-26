@@ -25,16 +25,12 @@ import lyzzcw.work.im.common.domain.constants.IMConstants;
 import lyzzcw.work.im.common.domain.enums.IMCmdType;
 import lyzzcw.work.im.common.domain.enums.IMListenerType;
 import lyzzcw.work.im.common.domain.enums.IMSendCode;
-import lyzzcw.work.im.common.domain.model.IMPrivateMessage;
-import lyzzcw.work.im.common.domain.model.IMReceiveInfo;
-import lyzzcw.work.im.common.domain.model.IMSendResult;
-import lyzzcw.work.im.common.domain.model.IMUserInfo;
+import lyzzcw.work.im.common.domain.model.*;
 import lyzzcw.work.im.sdk.infrastructure.multicaster.MessageListenerMulticaster;
 import lyzzcw.work.im.sdk.interfaces.sender.IMSender;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * 默认 imsender
@@ -67,6 +63,41 @@ public class DefaultIMSender implements IMSender {
             //向自己的其他终端发送私聊消息
             this.sendPrivateMessageToSelf(message, receiveTerminals);
         }
+    }
+
+    @Override
+    public <T> void sendGroupMessage(IMGroupMessage<T> message) {
+        Map<String, IMUserInfo> userTerminalGroup = this.getUserTerminalGroup(message);
+        //分组数据为空，直接返回
+        if (CollectionUtil.isEmpty(userTerminalGroup)){
+            return;
+        }
+        //从Redis批量拉取数据
+        List<String> serverIdList = distributedCacheService.multiGet(userTerminalGroup.keySet());
+        if (CollectionUtil.isEmpty(serverIdList)){
+            return;
+        }
+        //将接收方按照服务Id进行分组，Key-服务ID，Value-接收消息的用户列表
+        Map<Integer, List<IMUserInfo>> serverMap = new HashMap<>();
+        //离线用户列表
+        List<IMUserInfo> offlineUserList = new LinkedList<>();
+        int idx = 0;
+        for (Map.Entry<String, IMUserInfo> entry : userTerminalGroup.entrySet()){
+//            String serverIdStr = serverIdList.get(idx++);
+            String serverIdStr = serverIdList.get(idx);
+            idx = idx + 1;
+            if (!StrUtil.isEmpty(serverIdStr)){
+                List<IMUserInfo> list = serverMap.computeIfAbsent(Integer.parseInt(serverIdStr), o -> new LinkedList<>());
+                list.add(entry.getValue());
+            }else{
+                //添加离线用户
+                offlineUserList.add(entry.getValue());
+            }
+        }
+        //向群组其他成员发送消息
+        this.sendGroupMessageToOtherUsers(serverMap, offlineUserList, message);
+        //推送给自己的其他终端
+        this.sendGroupMessageToSelf(message,message.getReceiveTerminals());
     }
 
     /**
@@ -113,5 +144,61 @@ public class DefaultIMSender implements IMSender {
                 messageListenerMulticaster.multicast(IMListenerType.PRIVATE_MESSAGE, result);
             }
         });
+    }
+
+    /**
+     * 获取用户终端分组信息
+     */
+    private <T> Map<String, IMUserInfo> getUserTerminalGroup(IMGroupMessage<T> message){
+        Map<String, IMUserInfo> map = new HashMap<>();
+        if (message == null){
+            return map;
+        }
+        for (Integer terminal : message.getReceiveTerminals()){
+            message.getReceiveIds().forEach((receiveId) -> {
+                String key = String.join(IMConstants.REDIS_KEY_SPLIT, IMConstants.IM_USER_SERVER_ID, receiveId.toString(), terminal.toString());
+                map.put(key, new IMUserInfo(receiveId, terminal));
+            });
+        }
+        return map;
+    }
+
+
+    /**
+     * 推送给自己的其他终端
+     */
+    private <T> void sendGroupMessageToSelf(IMGroupMessage<T> message,List<Integer> receiveTerminals) {
+        //向自己的其他终端发送消息
+        if (BooleanUtil.isTrue(message.getSendToSelf())){
+            receiveTerminals.forEach((receiveTerminal) -> {
+                //向自己的其他终端发送消息
+                if (!message.getSender().getTerminal().equals(receiveTerminal)){
+                    String redisKey = String.join(IMConstants.REDIS_KEY_SPLIT, IMConstants.IM_USER_SERVER_ID, message.getSender().getUserId().toString(), receiveTerminal.toString());
+                    String serverId = distributedCacheService.get(redisKey);
+                    if (!StrUtil.isEmpty(serverId)){
+                        String sendKey = String.join(IMConstants.MESSAGE_KEY_SPLIT,IMConstants.IM_MESSAGE_PRIVATE_QUEUE, serverId);
+                        IMReceiveInfo imReceiveInfo = new IMReceiveInfo(IMCmdType.PRIVATE_MESSAGE.code(), message.getSender(), Collections.singletonList(new IMUserInfo(message.getSender().getUserId(), receiveTerminal)), false, message.getData());
+                        imReceiveInfo.setDestination(sendKey);
+                        messageSenderService.send(imReceiveInfo);
+                    }
+                }
+            });
+        }
+    }
+
+    private <T> void sendGroupMessageToOtherUsers(Map<Integer, List<IMUserInfo>> serverMap, List<IMUserInfo> offlineUserList, IMGroupMessage<T> message) {
+        for (Map.Entry<Integer, List<IMUserInfo>> entry : serverMap.entrySet()){
+            IMReceiveInfo imReceiveInfo = new IMReceiveInfo(IMCmdType.GROUP_MESSAGE.code(), message.getSender(), new LinkedList<>(entry.getValue()), message.getSendResult(), message.getData());
+            String sendKey = String.join(IMConstants.MESSAGE_KEY_SPLIT, IMConstants.IM_MESSAGE_GROUP_QUEUE, entry.getKey().toString());
+            imReceiveInfo.setDestination(sendKey);
+            messageSenderService.send(imReceiveInfo);
+        }
+        //回复离线用户消息状态
+        if (message.getSendResult()){
+            offlineUserList.forEach((offlineUser) -> {
+                IMSendResult<T> result = new IMSendResult<>(message.getSender(), offlineUser, IMSendCode.NOT_ONLINE.code(), message.getData());
+                messageListenerMulticaster.multicast(IMListenerType.GROUP_MESSAGE, result);
+            });
+        }
     }
 }
