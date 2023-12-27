@@ -15,11 +15,11 @@
         <!-- 生成的pojo，增加了equals 和 hashCode方法-->
 <!--        <plugin type="org.mybatis.generator.plugins.EqualsHashCodePlugin" />-->
         <!-- 自动生成实体类中去掉getter和setter方法，自定义方法中添加lombok注解-->
-        <plugin type="lyzzcw.work.im.server.infrastructure.generator.IngoreSetterAndGetterPlugin" />
+        <plugin type="lyzzcw.work.im.platform.infrastructure.generator.IngoreSetterAndGetterPlugin" />
         <!--生成mapper.xml时覆盖原文件 建议追加不覆盖，以免丢失原sql-->
         <plugin type="org.mybatis.generator.plugins.UnmergeableXmlMappersPlugin" />
         <!-- type值为自定义的MyCommentGenerator-->
-        <commentGenerator type="lyzzcw.work.im.server.infrastructure.generator.CustomizedGenerator">
+        <commentGenerator type="lyzzcw.work.im.platform.infrastructure.generator.CustomizedGenerator">
             <!-- 是否去除自动生成的注释 true：是 ： false:否 -->
             <property name="suppressAllComments" value="false"/>
             <property name="suppressDate" value="false"/>
@@ -46,8 +46,8 @@
         </javaTypeResolver>
         <!-- targetPackage：生成的实体类所在的包 -->
         <!-- targetProject：生成的实体类所在的硬盘位置 -->
-        <javaModelGenerator targetPackage="lyzzcw.work.im.infrastructure.entity"
-                            targetProject="D:/java/workspace/lzy/lyzzcw-im/lyzzcw-im-server/lyzzcw-im-server-infrastructure/src/main/java">
+        <javaModelGenerator targetPackage="lyzzcw.work.im.platform.domain.entity"
+                            targetProject="D:/java/workspace/lzy/lyzzcw-im/lyzzcw-im-platform/lyzzcw-im-platform-domain/src/main/java">
             <!-- 是否允许子包 -->
             <property name="enableSubPackages" value="false"/>
             <!-- 是否对modal添加构造函数 -->
@@ -58,15 +58,15 @@
             <property name="immutable" value="false"/>
         </javaModelGenerator>
         <!-- targetPackage 和 targetProject：生成的 mapper 文件的包和位置 -->
-        <sqlMapGenerator targetPackage="lyzzcw.work.im.infrastructure.mapper"
-                         targetProject="D:/java/workspace/lzy/lyzzcw-im/lyzzcw-im-server/lyzzcw-im-server-infrastructure/src/main/resources">
+        <sqlMapGenerator targetPackage="lyzzcw.work.im.platform.infrastructure.mapper"
+                         targetProject="D:/java/workspace/lzy/lyzzcw-im/lyzzcw-im-platform/lyzzcw-im-platform-infrastructure/src/main/resources">
             <!-- 针对数据库的一个配置，是否把 schema 作为字包名 -->
             <property name="enableSubPackages" value="false"/>
         </sqlMapGenerator>
         <!-- targetPackage 和 targetProject：生成的 interface 文件的包和位置 -->
         <javaClientGenerator type="XMLMAPPER"
-                             targetPackage="lyzzcw.work.im.infrastructure.mapper"
-                             targetProject="D:/java/workspace/lzy/lyzzcw-im/lyzzcw-im-server/lyzzcw-im-server-infrastructure/src/main/java">
+                             targetPackage="lyzzcw.work.im.platform.infrastructure.mapper"
+                             targetProject="D:/java/workspace/lzy/lyzzcw-im/lyzzcw-im-platform/lyzzcw-im-platform-infrastructure/src/main/java">
             <!-- 针对 oracle 数据库的一个配置，是否把 schema 作为字包名 -->
             <property name="enableSubPackages" value="false"/>
         </javaClientGenerator>
