@@ -34,6 +34,7 @@
         <mysql.version>5.1.46</mysql.version>
         <cola.version>3.0.0</cola.version>
         <spring-boot.version>2.7.17</spring-boot.version>
+        <mybatis.version>2.3.1</mybatis.version>
         <dubbo3.version>3.0.7</dubbo3.version>
         <spring-cloud.version>2021.0.1</spring-cloud.version>
         <spring-cloud-alibaba.version>2021.0.1.0</spring-cloud-alibaba.version>
@@ -49,6 +50,11 @@
                 <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mybatis.spring.boot</groupId>
+                <artifactId>mybatis-spring-boot-starter</artifactId>
+                <version>${mybatis.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.alibaba</groupId>
