@@ -289,5 +289,6 @@
     <module>lyzzcw-im-platform-message</module>
     <module>lyzzcw-im-platform-user</module>
     <module>lyzzcw-im-platform-group</module>
-  </modules>
+        <module>lyzzcw-im-platform-dubbo</module>
+    </modules>
 </project>
